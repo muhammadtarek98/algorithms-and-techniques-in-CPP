@@ -1,0 +1,642 @@
+#include<bits/stdc++.h>
+#define format(q) setpersesion(q)
+using namespace std;
+typedef vector<int> vi;
+typedef vector<double>vd;
+typedef vector<float>vf;
+typedef vector<long long>vll;
+const int MX=(int)1e3+5;
+const int OO =(int)1e6;
+const int eps=(int)1e-7;
+long long n,m;
+int x,y,w;
+char num_char_map[]={'0','1','2','3','4','5','6','7','8','9'};
+/*
+int c=num_char_map[i]-'0';
+    cout<<c;->i
+*/
+///4 direction
+int dirx4[] = {0,0,-1,1};
+int diry4[] = {-1,1,0,0};
+///8 directions
+int dirx8[]={0,0,1,-1,1,-1,1,-1};
+int diry8[]={1,-1,0,0,1,-1,-1,1};
+int adj[MX][MX];
+int prv[MX][MX];
+///unweighted edge list
+struct unweightedge
+{
+    int s,d;
+    unweightedge(int src,int des)
+    {
+        s=src;
+        d=des;
+    }
+};
+///weighted edge list
+struct edgeweighted
+{
+    int src,des,weig;
+    edgeweighted(int src,int des,int weig)
+    {
+        src=src;
+        des=des;
+        weig=weig;
+    }
+};
+///in the grid
+bool in(int &i,int &j,int &n)
+{
+    if(i>=0&&j>=0&&i<n&&j<n)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/// 1D range sum 1 based array
+int range_sum(int s,int e,vector<int> &pref)
+{
+    return pref[e]-pref[s-1];
+}
+class cumm_sum_2D{
+///cumm_sum_intialize2D 1based matrix
+void cumm_sum(int &n,int &m,vector<vector<int>> &pref)
+{
+    for(int i=0;i<=n;i++)
+    {
+        pref[i][0]=0;
+    }
+    for(int i=0;i<=m;i++)
+    {
+        pref[0][i]=0;
+    }
+}
+void calc_cumm_sum_row(vector<vector<int>> &pref)
+{
+    for(int i=1;i<(int)pref.size();i++)
+    {
+        for(int j=1;j<(int)pref[0].size();j++)
+        {
+            pref[i][j]+=pref[i][j-1];
+        }
+    }
+}
+void calc_cumm_sum_col(vector<vector<int>> &pref)
+{
+    for(int i=1;i<(int)pref[0].size();i++)
+    {
+        for(int j=1;j<(int)pref.size();j++)
+        {
+            pref[i][j]+=pref[i-1][j];
+        }
+    }
+}
+int range_sum(int &i,int &j,int &k,int &l,vector<vector<int>> &pref)
+{
+    return pref[k][l]-pref[k][j-1]-pref[i-1][l]+pref[i-1][j-1];
+}
+};
+class cumm_sum_3D
+{
+///3D cumm_sum 1 based array
+void cumm_sum(int &x,int &y,int &z,vector<vector<vector<int>>> &pref)
+{
+    for(int i=0;i<=x;i++)
+    {
+        pref[i][0][0]=0;
+    }
+    for(int i=0;i<=y;i++)
+    {
+        pref[0][i][0]=0;
+    }
+    for(int i=0;i<=z;i++)
+    {
+        pref[0][0][i]=0;
+    }
+}
+void calc_cumm_sum_x(vector<vector<vector<int>>> &pref)
+{
+    for(int i=1;i<(int)pref.size();i++)
+    {
+        for(int j=1;j<(int)pref[0].size();j++)
+
+        {
+            for(int k=1;k<(int)pref[0][0].size();k++)
+            {
+                pref[i][j][k]+=pref[i][j-1][k-1];
+            }
+        }
+    }
+}
+void calc_cumm_sum_y(vector<vector<vector<int>>> &pref)
+{
+    for(int i=1;i<(int)pref[0].size();i++)
+    {
+        for(int j=1;j<(int)pref.size();j++)
+
+        {
+            for(int k=1;k<(int)pref[0][0].size();k++)
+            {
+                pref[i][j][k]+=pref[i-1][j][k-1];
+            }
+        }
+    }
+}
+void calc_cumm_sum_z(vector<vector<vector<int>>> &pref)
+{
+    for(int i=1;i<(int)pref[0][0].size();i++)
+    {
+        for(int j=1;j<(int)pref[0].size();j++)
+
+        {
+            for(int k=1;k<(int)pref.size();k++)
+            {
+                pref[i][j][k]+=pref[i-1][j-1][k];
+            }
+        }
+    }
+}
+
+};
+///BINARY_SEARCH
+int BINARY_SEARCH_recursive(long long k,int low,int high,vector<long long> &a)
+{
+    if(high<low)
+    {
+        return -1;
+    }
+    else
+    {
+        int mid=low+(high-low)/2;
+        if(a[mid]>k)
+        {
+            return BINARY_SEARCH_recursive(k,low,mid-1,a);
+        }
+        else if(a[mid]<k)
+        {
+         return BINARY_SEARCH_recursive(k,mid+1,high,a);
+        }
+        else
+        {
+            return mid;
+        }
+    }
+}
+int BINARY_SEARCH_iterative(long long k,int low,int high,vector<long long> &a)
+{
+    while(high>=low)
+    {
+        int mid=low+(high-low)/2;
+        if(a[mid]<k)
+        {
+            low=mid+1;
+        }
+        else if(a[mid]>k)
+        {
+            high=mid-1;
+        }
+        else
+        {
+            return mid;
+        }
+
+    }
+    return -1;
+}
+///GCD
+int gcd(int x,int y)
+{
+    if(y==0)
+    {
+        return x;
+    }
+    return gcd(y,x%y);
+
+}
+///bit=1 count
+int bitcount(int x)
+{
+    int c=0;
+    while(x)
+    {
+        x&=(x-1);
+        c++;
+    }
+    return c;
+}
+///dijkstra
+struct edge{
+    int from,w,to;
+    edge(int from,int to,int w)
+    {
+        from=from;
+        to=to;
+        w=w;
+    }
+    bool operator <(const edge &e) const
+    {
+        return w>e.w;
+    }
+
+};
+int dijkstra2(vector<vector<edge>> &adj,int s,int d=-1)
+{
+    int sz=(int)adj.size();
+    vector<int>dis(sz+2,OO);
+    vector<int>prev(sz+2,-1);
+    dis[s]=0;
+    priority_queue<edge>q;
+    q.push(edge(-1,s,0));
+    while(!q.empty())
+    {
+        edge e=q.top();
+        q.pop();
+        if(e.w>dis[e.to])
+        {
+            continue;
+        }
+        prev[e.to]=e.from;
+        for(int j=0;j<(int)adj[e.to].size();j++)
+        {
+            edge f=adj[e.to][j];
+            if(dis[f.to]>dis[f.from]+f.w)
+            {
+                f.w=dis[f.to]=dis[f.from]+f.w;
+                q.push(f);
+            }
+        }
+    }
+    if(d==-1)
+    {
+        return -1;
+    }
+    return dis[d];
+}
+vector<int> dijkstra(long long &sr,long long &des,vector<vector<pair<long long,long long>>> &adj,long long &sz)///pair in adj is <node,weight>
+{
+    vector<int>par(sz+4,-1);
+    vector<int>dis(sz+1,-1);
+    set<pair<int,int>>s;///<total weight , node>
+    s.insert({0,sr});
+    while(!s.empty())
+    {
+        pair<int,int>p=*(s.begin());
+        s.erase(p);
+        int nod=p.second;
+        int cost=p.first;
+        if(dis[nod]!=-1)
+        {
+        continue;
+        }
+        dis[nod]=cost;
+        for(int i=0;i<(int)adj[nod].size() ; i++)
+            {
+                pair<int,int>k=adj[nod][i];
+                if(dis[k.first]==-1)
+                {
+                    par[k.first]=nod;
+                    s.insert({cost+k.second,k.first});
+                }
+            }
+    }
+    return dis;
+    vector<int>path;
+    path.push_back(des);
+    long long x=des;
+    while(x!=sr)
+    {
+        x=par[x];
+        path.push_back(x);
+    }
+    reverse(path.begin(),path.end());
+    return path;
+
+}
+///build path
+void path(int i,int j)
+{
+    if(i!=j)
+    {
+        path(i,prv[i][j]);
+    }
+    cout<<j<<" ";
+}
+///DFS
+void dfs1(int &s,vector<vector<int>> &adj,vector<int> &vis)
+{
+    if(vis[s])
+        return;
+    vis[s]=1;
+    for(auto &i:adj[s])
+    {
+        if(!vis[i])
+        {
+            dfs1(i,adj,vis);
+        }
+    }
+
+}
+void dfs2(long long &s,vector<vector<int>> &adj,vector<bool> &vis)
+{
+    vis[s]=true;
+  for(int i=0;i<(int)adj[s].size();i++)
+    {
+        long long f=adj[s][i];
+        if(!vis[f])
+        {
+            dfs2(f,adj,vis);
+        }
+    }
+}
+
+///floyd
+void floyd(int &n)
+{
+    for(int k=1;k<=n;k++)
+    {
+        for(int i=1;i<=n;i++)
+        {
+            for(int j=1;j<=n;j++)
+            {
+
+                adj[i][j]=min(adj[i][j],adj[i][k]+adj[k][j]);
+            }
+        }
+    }
+}
+///bellmanford
+void bellmanford(vector<edgeweighted> &edgelist,int &n,int &src)
+{
+vector<int>dis(n,OO);
+dis[src]=0;
+for(int edges=0;edges<n-1;edges++)
+{
+    for(int i=0,r=0;i<(int)edgelist.size();i++,r=0)
+    {
+        edgeweighted nw=edgelist[i];
+        int d=nw.des,s=nw.src,w=nw.weig;
+        if(dis[d]>dis[s]+w)
+        {
+            dis[d]=dis[s]+w;
+            r=1;
+        }
+        if(!r)
+        {
+           break;
+        }
+    }
+}
+}
+/// path bellmanford
+vector<int>bellmanfordpath(vector<edgeweighted> &edgelist,int &n,int &src)
+{
+vector<int>dis(n,OO);
+vector<int>pre(n,-1);
+dis[src]=0;
+for(int edges=0;edges<n;edges++)
+{
+    for(int i=0,r=0;i<(int)edgelist.size();i++,r=0)
+    {
+        edgeweighted nw=edgelist[i];
+        int d=nw.des,s=nw.src,w=nw.weig;
+        if(dis[d]>dis[s]+w)
+        {
+            dis[d]=dis[s]+w;
+            pre[d]=s;
+            r=1;
+
+        }
+        if(!r)
+        {
+           break;
+        }
+    }
+}
+    reverse(pre.begin(),pre.end());
+    return pre;
+}
+///cycle detection bellmanford
+bool bellmanfordcd(vector<edgeweighted> &edgelist,int &n,int &src)
+{
+vector<int>dis(n,OO);
+dis[src]=0;
+for(int edges=0;edges<n;edges++)
+{
+    for(int i=0,r=0;i<(int)edgelist.size();i++,r=0)
+    {
+        edgeweighted nw=edgelist[i];
+        int d=nw.des,s=nw.src,w=nw.weig;
+        if(dis[d]>dis[s]+w)
+        {
+            dis[d]=dis[s]+w;
+            r=1;
+            if(edges==n-1)
+            {
+                return true;
+            }
+        }
+        if(!r)
+        {
+           break;
+        }
+    }
+}
+return false;
+}
+
+///bfs
+vector<int> BFSPath(int &sr, int &des, vector<vector<int>> &adj,int &sz,vector<bool> &vis)
+{
+    vector<int> par(sz,-1);
+    vector<int> dis(sz,-1);
+    queue<int> q;
+    q.push(sr);
+    dis[sr]=0;
+    int depth=0,cur=sr,szq=1;
+    bool flag=true;
+    for(;flag&&!q.empty();depth++,szq=(int)q.size())
+    {
+        while(flag &&szq--)
+        {
+            cur=q.front();
+            q.pop();
+            for(int i=0;i<(int)adj[cur].size();i++)
+            {
+                int f=adj[cur][i];
+                if(dis[f]==-1)
+                {
+                    q.push(f);
+                    dis[f]=depth+1;
+                    par[f]=cur;
+                }
+                if(f==des)
+                {
+                    flag=false;
+                    break;
+                }
+            }
+        }
+    }
+    vector<int>pathl;
+    while(des!=-1)
+    {
+        pathl.push_back(des);
+        des=par[des];
+    }
+
+    reverse(pathl.begin(),pathl.end());
+    return pathl;
+}
+
+vector<int>bfs1 (int &sr,int &sz,vector<vector<int>> &adj,vector<bool> &vis,int &des)
+{
+    vector<int> dis(sz,-1);
+    queue<int>q;
+    q.push(sr);
+    dis[sr]=0;
+    int depth=0,cur=sr,szq=1;
+    for(;!q.empty();depth++,szq=(int)q.size())
+    {
+        while(szq--)
+        {
+            cur=q.front();
+            q.pop();
+            for(int i=0;i<(int)adj[cur].size();i++)
+            {
+                int f=adj[cur][i];
+                if(dis[cur]==-1)
+                {
+                    q.push(f);
+                    dis[f]=depth+1;
+                }
+            }
+        }
+
+    }
+    return dis;
+}
+
+vector<long long>bfs2(long long &sr,long long &sz,vector<vector<long long>> &adj,vector<bool> &vis,long long &des)
+{
+    vector<long long>dis(sz,-1);
+    vis[sr]=true;
+    dis[sr]=0;
+    queue<long long>q;
+    q.push(sr);
+    while(!q.empty())
+    {
+        long long nod=q.front();
+        q.pop();
+        for(int i=0;i<(int)adj[nod].size();i++)
+        {
+            long long a=adj[nod][i];
+            if(dis[a]==-1)
+            {
+                q.push(a);
+                dis[a]=dis[nod]+1;
+                vis[a]=true;
+            }
+        }
+    }
+    return dis;
+}
+vector<long long>bfs2path(long long &sr,long long &sz,vector<vector<long long>> &adj,vector<bool> &vis,long long &des)
+{
+    vector<long long>dis(sz,-1);
+    vector<long long>par(sz);
+    vis[sr]=true;
+    dis[sr]=0;
+    par[sr]=sr;
+    queue<long long>q;
+    q.push(sr);
+    while(!q.empty())
+    {
+        long long nod=q.front();
+        q.pop();
+        for(int i=0;i<(int)adj[nod].size();i++)
+        {
+            long long a=adj[nod][i];
+            if(dis[a]==-1)
+            {
+                q.push(a);
+                par[a]=nod;
+                dis[a]=dis[nod]+1;
+                vis[a]=true;
+            }
+        }
+    }
+    vector<long long>pathl;
+    pathl.push_back(des);
+    long long x=des;
+    while(x!=sr)
+    {
+        x=par[x];
+        pathl.push_back(x);
+    }
+    reverse(pathl.begin(),pathl.end());
+    return pathl;
+}
+///DSU
+class DSU{
+public:
+    void intial (int &sz , int a[] , int siz[])
+    {
+        for(int i=1;i<=sz;i++)
+        {
+            a[i]=i;
+            siz[i]=1;
+        }
+    }
+    int lead(int v,int a[])
+    {
+        if(v==a[v])
+        {
+            return v;
+        }
+        return a[v]=lead(a[v],a);
+    }
+    bool samelead(int x,int y,int a[])
+    {
+        int l1=lead(x,a);
+        int l2=lead(y,a);
+        return l1==l2;
+    }
+    void mergeg(int x,int y,int a[],int siz[])
+    {
+        int l1=lead(x,a);
+        int l2=lead(y,a);
+        if(l1==l2)
+        {
+            return;
+        }
+        if(siz[l1]>siz[l2])
+        {
+            a[l2]=l1;
+            siz[l1]+=siz[l2];
+        }
+        else if(siz[l2]>siz[l1])
+        {
+            a[l1]=l2;
+            siz[l2]+=siz[l1];
+        }
+    }
+};
+void fast()
+{
+ #ifndef ONLINE_JUDGE
+	freopen("i.txt", "r", stdin);
+	freopen("o.txt", "w", stdout);
+#endif
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+}
+int main(int argc, char const *argv[])
+{
+    fast();
+    return 0;
+}
