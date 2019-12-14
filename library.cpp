@@ -1,15 +1,67 @@
 #include<bits/stdc++.h>
-#define format(q) setpersesion(q)
+#define format(q) setprecision(q)
+#define F first
+#define S second
+#define PB push_back
+#define MP make_pair
+#define REP1(i,a,b) for (int i = a; i <= b; i++)
+#define REP0(i,a,b) for (int i = a; i < b; i++)
 using namespace std;
 typedef vector<int> vi;
 typedef vector<double>vd;
 typedef vector<float>vf;
 typedef vector<long long>vll;
-const int MX=(int)1e3+5;
-const int OO =(int)1e6;
-const int eps=(int)1e-7;
+const double pi=22.0/7.0;
+const int MX=(int)((1e3))+5;
+const int OOpos =(int)1e6;
+const int OOneg =((int)(1e6))*-1;
+const double eps=1.0/(1e7);
 long long n,m;
 int x,y,w;
+int W[MX],p[MX];
+int DP[MX][MX];
+int knapsack(int i,int r)
+{
+    if(i==n)
+    {
+        return 0;
+    }
+    if(DP[i][r]!=-1)
+    {
+        return DP[i][r];
+    }
+    if(W[i]>r)
+    {
+        DP[i][r]=knapsack(i+1,r);/// leave the item
+    }
+    else
+    {
+        DP[i][r]=max(knapsack(i+1,r-W[i])+p[i],knapsack(i+1,r));///take the item
+    }
+    return DP[i][r];
+}
+int dp[MX][MX];
+int LCS(int i,int j,string &x,string &y)
+{
+    if(i==(int)x.size()||j==(int)y.size())
+        return 0;
+    if(dp[i][j]!=-1)
+        return dp[i][j];
+    if(x[i]==y[j])
+       return dp[i][j]=LCS(i+1,j+1,x,y)+1;
+    return dp[i][j]=max(LCS(i,j+1,x,y),LCS(i+1,j,x,y));
+}
+
+/*
+    give vector of vector a size of outside vector and inside vector
+*/
+vector<vector<char>> grid(MX+6,vector<char>(MX+6,'c'));
+vector<vector<vector<char>>>g (MX,vector<vector<char>>(MX,vector<char>(MX,'c')));
+/*
+memset with vector
+memset(v[0],-1,(int)v.size())
+*/
+char maper[27]={'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 char num_char_map[]={'0','1','2','3','4','5','6','7','8','9'};
 /*
 int c=num_char_map[i]-'0';
@@ -27,10 +79,10 @@ int prv[MX][MX];
 struct unweightedge
 {
     int s,d;
-    unweightedge(int src,int des)
+    unweightedge(int s,int d)
     {
-        s=src;
-        d=des;
+        this->s=s;
+        this->d=d;
     }
 };
 ///weighted edge list
@@ -39,9 +91,9 @@ struct edgeweighted
     int src,des,weig;
     edgeweighted(int src,int des,int weig)
     {
-        src=src;
-        des=des;
-        weig=weig;
+        this->src=src;
+        this->des=des;
+        this->weig=weig;
     }
 };
 ///in the grid
@@ -62,8 +114,8 @@ int range_sum(int s,int e,vector<int> &pref)
 {
     return pref[e]-pref[s-1];
 }
-class cumm_sum_2D{
 ///cumm_sum_intialize2D 1based matrix
+class cumm_sum_2D{
 void cumm_sum(int &n,int &m,vector<vector<int>> &pref)
 {
     for(int i=0;i<=n;i++)
@@ -100,9 +152,9 @@ int range_sum(int &i,int &j,int &k,int &l,vector<vector<int>> &pref)
     return pref[k][l]-pref[k][j-1]-pref[i-1][l]+pref[i-1][j-1];
 }
 };
+///3D cumm_sum 1 based array
 class cumm_sum_3D
 {
-///3D cumm_sum 1 based array
 void cumm_sum(int &x,int &y,int &z,vector<vector<vector<int>>> &pref)
 {
     for(int i=0;i<=x;i++)
@@ -162,6 +214,24 @@ void calc_cumm_sum_z(vector<vector<vector<int>>> &pref)
 }
 
 };
+///Sieve prime factorization
+void sieve (int p,vector<int> sieve)
+{
+   int n=(int)sieve.size();
+    memset(&sieve[0],1,n);
+    sieve[0]=sieve[1]=0;
+    for(int i=2;i*i<=p;i++)
+    {
+        if(sieve[i])
+        {
+            for(int j=i*i;j<=p;j+=i)
+            {
+                sieve[j]=false;
+            }
+        }
+    }
+
+}
 ///BINARY_SEARCH
 int BINARY_SEARCH_recursive(long long k,int low,int high,vector<long long> &a)
 {
@@ -217,6 +287,37 @@ int gcd(int x,int y)
     return gcd(y,x%y);
 
 }
+/*
+get the result of a power p
+*/
+int Pow(int a,int p)
+{
+    if(p==0)
+    {
+        return 1;
+    }
+    int sq=Pow(a,p/2);
+    if(p%2==1)
+    {
+         sq=sq*a;
+    }
+    return sq;
+}
+bool Isprime(int &n)
+{
+    if(n<2)
+    {
+        return 0;
+    }
+    for(int i=2;i*i<=n;i++)
+    {
+        if(n%i==0)
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
 ///bit=1 count
 int bitcount(int x)
 {
@@ -233,9 +334,9 @@ struct edge{
     int from,w,to;
     edge(int from,int to,int w)
     {
-        from=from;
-        to=to;
-        w=w;
+        this->from=from;
+        this->to=to;
+        this->w=w;
     }
     bool operator <(const edge &e) const
     {
@@ -246,7 +347,7 @@ struct edge{
 int dijkstra2(vector<vector<edge>> &adj,int s,int d=-1)
 {
     int sz=(int)adj.size();
-    vector<int>dis(sz+2,OO);
+    vector<int>dis(sz+2,OOpos);
     vector<int>prev(sz+2,-1);
     dis[s]=0;
     priority_queue<edge>q;
@@ -254,18 +355,20 @@ int dijkstra2(vector<vector<edge>> &adj,int s,int d=-1)
     while(!q.empty())
     {
         edge e=q.top();
+        int cur_to=e.to,cur_from=e.from,cur_w=e.w;
         q.pop();
-        if(e.w>dis[e.to])
+        if(cur_w>dis[cur_to])
         {
             continue;
         }
-        prev[e.to]=e.from;
-        for(int j=0;j<(int)adj[e.to].size();j++)
+        prev[cur_to]=cur_from;
+        for(int j=0;j<(int)adj[cur_to].size();j++)
         {
-            edge f=adj[e.to][j];
-            if(dis[f.to]>dis[f.from]+f.w)
+            edge f=adj[cur_to][j];
+            int to=e.to,from=e.from,w=e.w;
+            if(dis[to]>dis[from]+w)
             {
-                f.w=dis[f.to]=dis[f.from]+f.w;
+                f.w=dis[to]=dis[from]+w;
                 q.push(f);
             }
         }
@@ -371,7 +474,7 @@ void floyd(int &n)
 ///bellmanford
 void bellmanford(vector<edgeweighted> &edgelist,int &n,int &src)
 {
-vector<int>dis(n,OO);
+vector<int>dis(n,OOpos);
 dis[src]=0;
 for(int edges=0;edges<n-1;edges++)
 {
@@ -394,7 +497,7 @@ for(int edges=0;edges<n-1;edges++)
 /// path bellmanford
 vector<int>bellmanfordpath(vector<edgeweighted> &edgelist,int &n,int &src)
 {
-vector<int>dis(n,OO);
+vector<int>dis(n,OOpos);
 vector<int>pre(n,-1);
 dis[src]=0;
 for(int edges=0;edges<n;edges++)
@@ -422,7 +525,7 @@ for(int edges=0;edges<n;edges++)
 ///cycle detection bellmanford
 bool bellmanfordcd(vector<edgeweighted> &edgelist,int &n,int &src)
 {
-vector<int>dis(n,OO);
+vector<int>dis(n,OOpos);
 dis[src]=0;
 for(int edges=0;edges<n;edges++)
 {
@@ -637,6 +740,6 @@ void fast()
 }
 int main(int argc, char const *argv[])
 {
-    fast();
-    return 0;
+    //fast();
+     return 0;
 }
