@@ -7,6 +7,5 @@ public:
     void calc_cumm_sum_row(std::vector<std::vector<int>> &pref);
     void calc_cumm_sum_col(std::vector<std::vector<int>> &pref);
     int range_sum(int &i,int &j,int &k,int &l,std::vector<std::vector<int>> &pref);
-
 };
 #endif //CUM_SUM_H
