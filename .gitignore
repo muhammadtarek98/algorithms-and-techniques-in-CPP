@@ -5,3 +5,4 @@ my library1.cbp
 my library1.depend
 my library1.layout
 CMakeLists.txt
+/cmake-build-debug/
