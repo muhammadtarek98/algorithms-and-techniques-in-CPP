@@ -1,4 +1,19 @@
 #include "MyMath.h"
+MyMath::MyMath(int MX):MX(MX)
+{
+    this->dp=new int *[MX];
+    for(int i=0;i<MX;i++)
+    {
+        this->dp[i]=new int[MX];
+    }
+    for(int i=0;i<MX;i++)
+    {
+        for(int j=0;j<MX;j++)
+        {
+            this->dp[i][j]=0;
+        }
+    }
+}
 
 void MyMath::sieve (int p,std::vector<int> sieve)
 {

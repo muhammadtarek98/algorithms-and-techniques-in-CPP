@@ -1,9 +1,9 @@
 #ifndef MYMATH_H
 #define MYMATH_H
 #include<bits/stdc++.h>
-const int MX=(int)((1e3))+5;
 class MyMath {
   public:
+    MyMath(int MX);
     void sieve (int p,std::vector<int> sieve);
     int gcd(int x,int y);
     int Pow(int a,int p);
@@ -11,7 +11,9 @@ class MyMath {
     int bitcount(int x);
     int LCS(int i,int j,std::string &x,std::string &y);
     private:
-        int dp[MX][MX];
+        int MX;
+        int **dp;
+
 };
 
 

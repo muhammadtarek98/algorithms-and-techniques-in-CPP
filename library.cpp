@@ -4,6 +4,7 @@
 #include "binary_search.h"
 #include "cum_sum.h"
 #include "cum_sum_3D.h"
+#include "MyMath.h"
 #define format(q) setprecision(q)
 #define F first
 #define S second
@@ -316,5 +317,7 @@ int main(int argc, char const *argv[])
     //fast();
     BFS obj1;
     my_binary_search obj2;
+    MyMath obj3(MX);
+
      return 0;
 }
