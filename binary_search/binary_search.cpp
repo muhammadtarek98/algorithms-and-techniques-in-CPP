@@ -1,5 +1,5 @@
 #include "binary_search.h"
-int binary_search::BINARY_SEARCH_recursive(long long k,int low,int high,std::vector<long long> &a){
+int my_binary_search::BINARY_SEARCH_recursive(long long k,int low,int high,std::vector<long long> &a){
     if(high<low)
     {
         return -1;
@@ -21,7 +21,7 @@ int binary_search::BINARY_SEARCH_recursive(long long k,int low,int high,std::vec
         }
     }
 }
-int binary_search::BINARY_SEARCH_iterative(long long k,int low,int high,std::vector<long long> &a){
+int my_binary_search::BINARY_SEARCH_iterative(long long k,int low,int high,std::vector<long long> &a){
     while(high>=low)
     {
         int mid=low+(high-low)/2;

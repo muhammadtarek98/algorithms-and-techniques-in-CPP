@@ -1,4 +1,9 @@
 #include<bits/stdc++.h>
+#include "DSU.h"
+#include "BFS.h"
+#include "binary_search.h"
+#include "cum_sum.h"
+#include "cum_sum_3D.h"
 #define format(q) setprecision(q)
 #define F first
 #define S second
@@ -40,18 +45,6 @@ int knapsack(int i,int r)
     }
     return DP[i][r];
 }
-int dp[MX][MX];
-int LCS(int i,int j,string &x,string &y)
-{
-    if(i==(int)x.size()||j==(int)y.size())
-        return 0;
-    if(dp[i][j]!=-1)
-        return dp[i][j];
-    if(x[i]==y[j])
-       return dp[i][j]=LCS(i+1,j+1,x,y)+1;
-    return dp[i][j]=max(LCS(i,j+1,x,y),LCS(i+1,j,x,y));
-}
-
 /*
     give vector of vector a size of outside vector and inside vector
 */
@@ -113,76 +106,6 @@ bool in(int &i,int &j,int &n)
 int range_sum(int s,int e,vector<int> &pref)
 {
     return pref[e]-pref[s-1];
-}
-///Sieve prime factorization
-void sieve (int p,vector<int> sieve)
-{
-   int n=(int)sieve.size();
-    memset(&sieve[0],1,n);
-    sieve[0]=sieve[1]=0;
-    for(int i=2;i*i<=p;i++)
-    {
-        if(sieve[i])
-        {
-            for(int j=i*i;j<=p;j+=i)
-            {
-                sieve[j]=false;
-            }
-        }
-    }
-
-}
-///GCD
-int gcd(int x,int y)
-{
-    if(y==0)
-    {
-        return x;
-    }
-    return gcd(y,x%y);
-
-}
-/*
-get the result of a power p
-*/
-int Pow(int a,int p)
-{
-    if(p==0)
-    {
-        return 1;
-    }
-    int sq=Pow(a,p/2);
-    if(p%2==1)
-    {
-         sq=sq*a;
-    }
-    return sq;
-}
-bool Isprime(int &n)
-{
-    if(n<2)
-    {
-        return 0;
-    }
-    for(int i=2;i*i<=n;i++)
-    {
-        if(n%i==0)
-        {
-            return 0;
-        }
-    }
-    return 1;
-}
-///bit=1 count
-int bitcount(int x)
-{
-    int c=0;
-    while(x)
-    {
-        x&=(x-1);
-        c++;
-    }
-    return c;
 }
 ///dijkstra
 struct edge{
@@ -283,34 +206,6 @@ void path(int i,int j)
     }
     cout<<j<<" ";
 }
-///DFS
-void dfs1(int &s,vector<vector<int>> &adj,vector<int> &vis)
-{
-    if(vis[s])
-        return;
-    vis[s]=1;
-    for(auto &i:adj[s])
-    {
-        if(!vis[i])
-        {
-            dfs1(i,adj,vis);
-        }
-    }
-
-}
-void dfs2(long long &s,vector<vector<int>> &adj,vector<bool> &vis)
-{
-    vis[s]=true;
-  for(int i=0;i<(int)adj[s].size();i++)
-    {
-        long long f=adj[s][i];
-        if(!vis[f])
-        {
-            dfs2(f,adj,vis);
-        }
-    }
-}
-
 ///floyd
 void floyd(int &n)
 {
@@ -406,138 +301,6 @@ for(int edges=0;edges<n;edges++)
 return false;
 }
 
-///bfs
-vector<int> BFSPath(int &sr, int &des, vector<vector<int>> &adj,int &sz,vector<bool> &vis)
-{
-    vector<int> par(sz,-1);
-    vector<int> dis(sz,-1);
-    queue<int> q;
-    q.push(sr);
-    dis[sr]=0;
-    int depth=0,cur=sr,szq=1;
-    bool flag=true;
-    for(;flag&&!q.empty();depth++,szq=(int)q.size())
-    {
-        while(flag &&szq--)
-        {
-            cur=q.front();
-            q.pop();
-            for(int i=0;i<(int)adj[cur].size();i++)
-            {
-                int f=adj[cur][i];
-                if(dis[f]==-1)
-                {
-                    q.push(f);
-                    dis[f]=depth+1;
-                    par[f]=cur;
-                }
-                if(f==des)
-                {
-                    flag=false;
-                    break;
-                }
-            }
-        }
-    }
-    vector<int>pathl;
-    while(des!=-1)
-    {
-        pathl.push_back(des);
-        des=par[des];
-    }
-
-    reverse(pathl.begin(),pathl.end());
-    return pathl;
-}
-
-vector<int>bfs1 (int &sr,int &sz,vector<vector<int>> &adj,vector<bool> &vis,int &des)
-{
-    vector<int> dis(sz,-1);
-    queue<int>q;
-    q.push(sr);
-    dis[sr]=0;
-    int depth=0,cur=sr,szq=1;
-    for(;!q.empty();depth++,szq=(int)q.size())
-    {
-        while(szq--)
-        {
-            cur=q.front();
-            q.pop();
-            for(int i=0;i<(int)adj[cur].size();i++)
-            {
-                int f=adj[cur][i];
-                if(dis[cur]==-1)
-                {
-                    q.push(f);
-                    dis[f]=depth+1;
-                }
-            }
-        }
-
-    }
-    return dis;
-}
-
-vector<long long>bfs2(long long &sr,long long &sz,vector<vector<long long>> &adj,vector<bool> &vis,long long &des)
-{
-    vector<long long>dis(sz,-1);
-    vis[sr]=true;
-    dis[sr]=0;
-    queue<long long>q;
-    q.push(sr);
-    while(!q.empty())
-    {
-        long long nod=q.front();
-        q.pop();
-        for(int i=0;i<(int)adj[nod].size();i++)
-        {
-            long long a=adj[nod][i];
-            if(dis[a]==-1)
-            {
-                q.push(a);
-                dis[a]=dis[nod]+1;
-                vis[a]=true;
-            }
-        }
-    }
-    return dis;
-}
-vector<long long>bfs2path(long long &sr,long long &sz,vector<vector<long long>> &adj,vector<bool> &vis,long long &des)
-{
-    vector<long long>dis(sz,-1);
-    vector<long long>par(sz);
-    vis[sr]=true;
-    dis[sr]=0;
-    par[sr]=sr;
-    queue<long long>q;
-    q.push(sr);
-    while(!q.empty())
-    {
-        long long nod=q.front();
-        q.pop();
-        for(int i=0;i<(int)adj[nod].size();i++)
-        {
-            long long a=adj[nod][i];
-            if(dis[a]==-1)
-            {
-                q.push(a);
-                par[a]=nod;
-                dis[a]=dis[nod]+1;
-                vis[a]=true;
-            }
-        }
-    }
-    vector<long long>pathl;
-    pathl.push_back(des);
-    long long x=des;
-    while(x!=sr)
-    {
-        x=par[x];
-        pathl.push_back(x);
-    }
-    reverse(pathl.begin(),pathl.end());
-    return pathl;
-}
 void fast()
 {
  #ifndef ONLINE_JUDGE
@@ -551,5 +314,7 @@ void fast()
 int main(int argc, char const *argv[])
 {
     //fast();
+    BFS obj1;
+    my_binary_search obj2;
      return 0;
 }
